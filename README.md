@@ -103,3 +103,24 @@ The application features several key components:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Azure WebDAV
+
+This repository also includes a deployable WebDAV service backed by private Azure Blob Storage. The App Service uses a system-assigned managed identity with `Storage Blob Data Contributor` access.
+
+Create a resource group and deploy the Bicep template:
+
+```bash
+az group create --name rg-webdav --location eastus
+az deployment group create \
+  --resource-group rg-webdav \
+  --template-file infra/main.bicep \
+  --parameters webDavPassword='use-a-long-random-password'
+```
+
+After deployment, package and upload the service:
+
+```powershell
+Compress-Archive -Path app.py,requirements.txt -DestinationPath webdav.zip -Force
+az webapp deploy --resource-group rg-webdav --name <appName> --src-path webdav.zip --type zip
+```
